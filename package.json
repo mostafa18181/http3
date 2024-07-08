@@ -1,0 +1,21 @@
+{
+  "name": "http3-library",
+  "version": "1.0.0",
+  "description": "A HTTP/3 library for Node.js",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "http3",
+    "quic",
+    "nodejs",
+    "library"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^5.1.1",
+    "mocha": "^10.6.0"
+  }
+}
