@@ -6,7 +6,7 @@ server.setRequestHandler(async (request) => {
     console.log('Received request:', request);
     console.log("request", request)
 
-    // پردازش درخواست و ارسال پاسخ
+    // Process the request and send a response
     try {
         let response;
 
@@ -30,9 +30,9 @@ server.setRequestHandler(async (request) => {
     }
 });
 
-// نمونه متد handleData برای هندل کردن داده‌ها
+// Example handleData method for handling data
 async function handleData(data) {
-    // پردازش داده‌ها
+    // Processing data
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve(`Processed data: ${JSON.stringify(data)}`);

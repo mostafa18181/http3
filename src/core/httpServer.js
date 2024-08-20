@@ -51,7 +51,6 @@ class HttpServer {
             }
 
             this.addNonce(nonce);
-            console.log("data", data);
             if (data && data.startsWith('HELLO')) {
                 this.handleInitialHandshake(rinfo, data);
             } else {

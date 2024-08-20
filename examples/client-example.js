@@ -5,7 +5,7 @@ const sendRequest = async () => {
     try {
         await client.initializeSession();
 
-        const method = 'POST'; // 'GET', 'POST', 'PUT', 'DELETE' و غیره
+        const method = 'POST'; // 'GET', 'POST', 'PUT', 'DELETE'
         const path = '/example';
         const headers = {
             'Content-Type': 'application/json'
@@ -15,14 +15,14 @@ const sendRequest = async () => {
         };
 
         await client.sendHttpRequest(method, path, headers, body);
-        console.log('درخواست HTTP ارسال شد.');
+        console.log('HTTP request sent.');
 
         setTimeout(() => {
             console.log('Closing client after waiting for responses.');
             client.udpClient.close();
-        }, 10000); // بستن کلاینت بعد از 10 ثانیه
+        }, 10000);
     } catch (error) {
-        console.error('خطا در ارسال درخواست HTTP:', error);
+        console.error('Error sending HTTP request:', error);
     }
 };
 

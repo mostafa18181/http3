@@ -80,14 +80,12 @@ class HttpClient {
                     totalChunks: Math.ceil(message.length / chunkSize)
                 });
                 const encryptedPacket = this.encryptMessage(packet);
-                console.log("encryptedPacket---------" + packet);
 
                 udpClient.send(encryptedPacket, this.udpPort, this.address, (err) => {
                     if (err) {
                         console.error(err);
                         reject(err);
                     } else {
-                        console.log(`Chunk ${chunkNumber} sent`);
                         resolve();
                     }
                 });
@@ -146,7 +144,6 @@ class HttpClient {
         decipher.setAuthTag(Buffer.from(authTag, 'hex'));
         let decrypted = decipher.update(encrypted, 'hex', 'utf8');
         decrypted += decipher.final('utf8');
-        console.log("decrypted", decrypted);
         return decrypted;
     }
 }
