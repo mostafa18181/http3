@@ -1,0 +1,5 @@
+[udp-tls]
+accept = 127.0.0.1:5000
+connect = 127.0.0.1:4434
+cert = /path/to/server-cert.pem
+key = /path/to/server-key.pem
