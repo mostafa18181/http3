@@ -17,7 +17,7 @@ This package provides an implementation of HTTP/3 over UDP using Node.js. It all
 You can install this package using npm:
 
 ```bash
-npm install http3-package
+npm install http3-package-new
 ```
 
 ## Usage

@@ -1,3 +1,8 @@
+if (!process.env.SERVER_ACCEPT || !process.env.SERVER_CERT) {
+    console.error('Environment variables are missing. Please set SERVER_ACCEPT and SERVER_CERT.');
+    process.exit(1);
+}
+
 const fs = require('fs');
 const os = require('os');
 const path = require('path');

@@ -1,29 +1,79 @@
-const HttpClient = require('http3-package/src/core/httpClient');
-const client = new HttpClient('localhost', 4434, '/example/key/public_key.pem', '/example/key/private_key.pem');
 
-const sendRequest = async () => {
+const HttpClient = require('../src/core/httpClient');
+
+const sendRequests = async () => {
+    const client = new HttpClient(
+        '127.0.0.1',
+        4434,
+        'public_key.pem',
+        'private_key.pem'
+    );
+
     try {
+        // Start session
         await client.initializeSession();
 
-        const method = 'POST'; // 'GET', 'POST', 'PUT', 'DELETE'
-        const path = '/example';
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        const body = {
-            key: 'value'
-        };
+        // Test requests
+        const tests = [
+            {
+                method: 'POST',
+                path: '/submit',
+                headers: [
+                    { type: 'literal', header: { key: 'Content-Type', value: 'application/json' } },
+                    { type: 'literal', header: { key: 'Authorization', value: 'Bearer token123' } }
+                ],
+                body: { data: 'Simple test payload' }
+            },
+            {
+                method: 'POST',
+                path: '/process',
+                headers: [
+                    { type: 'indexed', index: 0, table: 'dynamic' },
+                    { type: 'indexed', index: 1, table: 'dynamic' }
+                ],
+                body: { action: 'process', value: 42 }
+            },
+            {
+                method: 'GET',
+                path: '/unknown',
+                headers: [],
+                body: null
+            },
+            {
+                method: 'POST',
+                path: '/error',
+                headers: [
+                    { type: 'literal', header: { key: 'Content-Type', value: 'application/json' } }
+                ],
+                body: { cause: 'Testing error response' }
+            }
+        ];
 
-        await client.sendHttpRequest(method, path, headers, body);
-        console.log('HTTP request sent.');
+        // Send requests
+        for (const test of tests) {
+            try {
+                await client.sendHttpRequest(test.method, test.path, test.headers, test.body);
+                console.log(`${test.method} request to ${test.path} sent successfully.`);
+            } catch (error) {
+                console.error(`Error sending ${test.method} request to ${test.path}:`, error);
+            }
+        }
 
-        setTimeout(() => {
-            console.log('Closing client after waiting for responses.');
-            client.udpClient.close();
-        }, 10000);
+        console.log('All requests sent successfully.');
     } catch (error) {
-        console.error('Error sending HTTP request:', error);
+        console.error('Error during client operation:', error);
+    }  finally {
+        setTimeout(() => {
+            if (client.isSocketActive()) {
+                console.log('Closing active client...');
+                client.udpClient.close();
+                client.udpClient = null;
+            } else {
+                console.log('Client socket is already inactive.');
+            }
+        }, 5000);
     }
+    
 };
 
-sendRequest();
+sendRequests();
