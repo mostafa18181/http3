@@ -30,8 +30,7 @@ const HttpServer = require('../src/core/httpServer');
 
 const server = new HttpServer('127.0.0.1', 4434, 'public_key.pem', 'private_key.pem');
 
-// تنظیم درخواست‌ها
-server.setRequestHandler(async (request, body, sessionId, path) => {
+ server.setRequestHandler(async (request, body, sessionId, path) => {
     console.log('Request handler registered:', path);
 
     switch (path) {
@@ -47,8 +46,7 @@ server.setRequestHandler(async (request, body, sessionId, path) => {
     }
 });
 
-// یک متد نمونه برای پردازش داده‌ها
-async function handleData(data) {
+ async function handleData(data) {
     return new Promise((resolve) => {
         setTimeout(() => {
             resolve(`Processed data: ${JSON.stringify(data)}`);
@@ -75,11 +73,9 @@ const sendRequests = async () => {
     );
 
     try {
-        // آغاز جلسه
-        await client.initializeSession();
+         await client.initializeSession();
 
-        // درخواست‌ها برای تست
-        const tests = [
+         const tests = [
             {
                 method: 'POST',
                 path: '/submit',
@@ -114,8 +110,7 @@ const sendRequests = async () => {
             }
         ];
 
-        // ارسال درخواست‌ها
-        for (const test of tests) {
+         for (const test of tests) {
             try {
                 await client.sendHttpRequest(test.method, test.path, test.headers, test.body);
                 console.log(`${test.method} request to ${test.path} sent successfully.`);
