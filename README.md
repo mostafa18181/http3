@@ -25,50 +25,124 @@ npm install http3-package
 ### Server Example
 
 ```javascript
-const Http3Server = require('http3-package/src/core/http3server');
+ 
+const HttpServer = require('../src/core/httpServer');
 
-const server = new Http3Server('127.0.0.1', 4434, 'path/to/server-cert.pem', 'path/to/server-key.pem');
+const server = new HttpServer('127.0.0.1', 4434, 'public_key.pem', 'private_key.pem');
 
-server.setRequestHandler(async (request) => {
-    console.log('Received request:', request);
+// تنظیم درخواست‌ها
+server.setRequestHandler(async (request, body, sessionId, path) => {
+    console.log('Request handler registered:', path);
 
-    // Handle request based on method
-    let response;
-    if (request.method === 'GET') {
-        response = {body: 'Hello, HTTP/3 with UDP! (GET)'};
-    } else if (request.method === 'POST') {
-        response = {body: 'Data received and processed! (POST)', data: request.payload};
+    switch (path) {
+        case '/submit':
+            return { success: true, message: 'Request processed successfully.' };
+        case '/process':
+            const processedData = await handleData(body);
+            return { success: true, message: `Data processed: ${processedData}` };
+        case '/error':
+            return { success: false, message: 'Forced error response.' };
+        default:
+            return { success: false, message: 'Unknown path.' };
     }
-    return response;
 });
 
-console.log('HTTP/3 server is running');
+// یک متد نمونه برای پردازش داده‌ها
+async function handleData(data) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(`Processed data: ${JSON.stringify(data)}`);
+        }, 1000);
+    });
+}
+
+console.log('Server is running');
+
 ```
 
 ### Client Example
 
 ```javascript
-const Http3Client = require('http3-package/src/core/http3client');
+ 
+const HttpClient = require('../src/core/httpClient');
 
-const client = new Http3Client('localhost', 4434, 'path/to/client-cert.pem', 'path/to/client-key.pem');
+const sendRequests = async () => {
+    const client = new HttpClient(
+        '127.0.0.1',
+        4434,
+        'public_key.pem',
+        'private_key.pem'
+    );
 
-const sendRequest = async () => {
-    await client.initializeSession();
+    try {
+        // آغاز جلسه
+        await client.initializeSession();
 
-    const method = 'POST';
-    const path = '/example';
-    const headers = {
-        'Content-Type': 'application/json'
-    };
-    const body = {
-        key: 'value'
-    };
+        // درخواست‌ها برای تست
+        const tests = [
+            {
+                method: 'POST',
+                path: '/submit',
+                headers: [
+                    { type: 'literal', header: { key: 'Content-Type', value: 'application/json' } },
+                    { type: 'literal', header: { key: 'Authorization', value: 'Bearer token123' } }
+                ],
+                body: { data: 'Simple test payload' }
+            },
+            {
+                method: 'POST',
+                path: '/process',
+                headers: [
+                    { type: 'indexed', index: 0, table: 'dynamic' },
+                    { type: 'indexed', index: 1, table: 'dynamic' }
+                ],
+                body: { action: 'process', value: 42 }
+            },
+            {
+                method: 'GET',
+                path: '/unknown',
+                headers: [],
+                body: null
+            },
+            {
+                method: 'POST',
+                path: '/error',
+                headers: [
+                    { type: 'literal', header: { key: 'Content-Type', value: 'application/json' } }
+                ],
+                body: { cause: 'Testing error response' }
+            }
+        ];
 
-    await client.sendHttpRequest(method, path, headers, body);
-    console.log('HTTP/3 request sent.');
+        // ارسال درخواست‌ها
+        for (const test of tests) {
+            try {
+                await client.sendHttpRequest(test.method, test.path, test.headers, test.body);
+                console.log(`${test.method} request to ${test.path} sent successfully.`);
+            } catch (error) {
+                console.error(`Error sending ${test.method} request to ${test.path}:`, error);
+            }
+        }
+
+        console.log('All requests sent successfully.');
+    } catch (error) {
+        console.error('Error during client operation:', error);
+    }  finally {
+        setTimeout(() => {
+            if (client.isSocketActive()) {
+                console.log('Closing active client...');
+                client.udpClient.close();
+                client.udpClient = null;
+            } else {
+                console.log('Client socket is already inactive.');
+            }
+        }, 5000);
+    }
+    
 };
 
-sendRequest();
+sendRequests();
+
 ```
 
 ## Configuration
